@@ -157,6 +157,7 @@ export const getHeaders = async (
 
   const headers = Object.entries({
     Accept: "application/json",
+    "Content-Security-Policy": "upgrade-insecure-requests",
     ...additionalHeaders,
     ...options.headers,
     ...formHeaders,
@@ -194,12 +195,6 @@ export const getHeaders = async (
   return headers
 }
 
-export const getRequestBody = (options: ApiRequestOptions): any => {
-  if (options.body) {
-    return options.body
-  }
-  return undefined
-}
 
 export const sendRequest = async <T>(
   config: OpenAPIConfig,

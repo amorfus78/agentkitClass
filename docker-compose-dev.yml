@@ -18,6 +18,21 @@ services:
     env_file: ".env"
     depends_on:
       - database
+    
+  nextjs_server:
+    container_name: nextjs_server
+    build: ./frontend
+    restart: always
+    command: "sh -c 'node server.js'"
+    volumes:
+      - ./frontend:/code
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    env_file: "frontend/.env"
+    depends_on:
+      - fastapi_server
 
   database:
     image: ankane/pgvector:v0.4.1

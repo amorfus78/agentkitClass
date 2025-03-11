@@ -119,6 +119,7 @@ const ConversationView = () => {
     }
 
     try {
+      console.log("env.NEXT_PUBLIC_API_URL", env.NEXT_PUBLIC_API_URL)
       const rawRes = await fetch(`${env.NEXT_PUBLIC_API_URL}/chat/agent`, {
         method: "POST",
         body: JSON.stringify({
@@ -133,7 +134,7 @@ const ConversationView = () => {
             version: settingsStore.setting.version,
           },
         }),
-        credentials: "include",
+        credentials: "omit",
         headers: {
           "Content-Type": "application/json",
         },

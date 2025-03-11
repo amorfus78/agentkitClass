@@ -11,7 +11,7 @@ export type OpenAPIConfig = {
   BASE: string
   VERSION: string
   WITH_CREDENTIALS: boolean
-  CREDENTIALS: "include" | "omit" | "same-origin"
+  CREDENTIALS: "omit"
   TOKEN?: string | Resolver<string> | undefined
   USERNAME?: string | Resolver<string> | undefined
   PASSWORD?: string | Resolver<string> | undefined
@@ -23,10 +23,12 @@ export const OpenAPI: OpenAPIConfig = {
   BASE: "",
   VERSION: "1",
   WITH_CREDENTIALS: false,
-  CREDENTIALS: "include",
+  CREDENTIALS: "omit",
   TOKEN: undefined,
   USERNAME: undefined,
   PASSWORD: undefined,
-  HEADERS: undefined,
+  HEADERS: {
+    "Content-Security-Policy": "upgrade-insecure-requests",
+  },
   ENCODE_PATH: undefined,
 }

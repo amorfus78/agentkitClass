@@ -12,7 +12,7 @@ RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python
 COPY app/pyproject.toml app/poetry.lock* /code/
 
 # Allow installing dev dependencies to run tests
-ARG INSTALL_DEV=false
+ARG INSTALL_DEV=true
 RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --with dev --no-root ; else poetry install --no-root --no-dev ; fi"
 
 ENV PYTHONPATH=/code
