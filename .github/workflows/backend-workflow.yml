@@ -46,7 +46,6 @@ jobs:
         working-directory: backend/app
         run:  |
           poetry install --with dev
-          poetry add --dev ruff
         
       - name: Lint with ruff
         working-directory: backend/app
