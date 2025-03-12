@@ -140,7 +140,7 @@ jobs:
       - name: Run tests with pytest
         working-directory: backend/app
         run: |
-          poetry run pytest tests/
+          poetry run pytest
           
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
