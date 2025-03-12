@@ -55,7 +55,7 @@ jobs:
         
       - name: Check formatting with black
         working-directory: backend/app
-        run: poetry run black --check .
+        run: poetry run black --check
         
       - name: Type checking with mypy
         working-directory: backend/app
