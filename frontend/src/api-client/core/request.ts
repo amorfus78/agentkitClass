@@ -17,26 +17,31 @@ export const isDefined = <T>(value: T | null | undefined): value is Exclude<T, n
   return value !== undefined && value !== null
 }
 
-export const isString = (value: any): value is string => {
-  return typeof value === "string"
-}
+export const isType = <T>(value: any, type: T): boolean => {
+  if (type === 'string') {
+    return typeof value === 'string';
+  }
+
+  if (type === 'blob') {
+    return (
+      typeof value === 'object' &&
+      typeof value.type === 'string' &&
+      typeof value.stream === 'function' &&
+      typeof value.arrayBuffer === 'function' &&
+      typeof value.constructor === 'function' &&
+      typeof value.constructor.name === 'string' &&
+      /^(Blob|File)$/.test(value.constructor.name) &&
+      /^(Blob|File)$/.test(value[Symbol.toStringTag])
+    );
+  }
+
+  return false;
+};
 
 export const isStringWithValue = (value: any): value is string => {
-  return isString(value) && value !== ""
+  return isType(value, 'string') && value !== ""
 }
 
-export const isBlob = (value: any): value is Blob => {
-  return (
-    typeof value === "object" &&
-    typeof value.type === "string" &&
-    typeof value.stream === "function" &&
-    typeof value.arrayBuffer === "function" &&
-    typeof value.constructor === "function" &&
-    typeof value.constructor.name === "string" &&
-    /^(Blob|File)$/.test(value.constructor.name) &&
-    /^(Blob|File)$/.test(value[Symbol.toStringTag])
-  )
-}
 
 export const isFormData = (value: any): value is FormData => {
   return value instanceof FormData
@@ -113,7 +118,7 @@ export const getFormData = (options: ApiRequestOptions): FormData | undefined =>
     const formData = new FormData()
 
     const process = (key: string, value: any) => {
-      if (isString(value) || isBlob(value)) {
+      if (isType(value, 'string') || isType(value, 'blob')) {
         formData.append(key, value)
       } else {
         formData.append(key, JSON.stringify(value))
@@ -183,9 +188,9 @@ export const getHeaders = async (
   if (options.body) {
     if (options.mediaType) {
       headers["Content-Type"] = options.mediaType
-    } else if (isBlob(options.body)) {
+    } else if (isType(options.body, 'blob')) {
       headers["Content-Type"] = options.body.type || "application/octet-stream"
-    } else if (isString(options.body)) {
+    } else if (isType(options.body, 'string')) {
       headers["Content-Type"] = "text/plain"
     } else if (!isFormData(options.body)) {
       headers["Content-Type"] = "application/json"
@@ -233,7 +238,7 @@ export const sendRequest = async <T>(
 export const getResponseHeader = (response: AxiosResponse<any>, responseHeader?: string): string | undefined => {
   if (responseHeader) {
     const content = response.headers[responseHeader]
-    if (isString(content)) {
+    if (isType(content, 'string')) {
       return content
     }
   }
