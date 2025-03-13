@@ -56,6 +56,41 @@ class PostgresService:
         async with pool.acquire() as conn:
             return await conn.fetchval(query, *args, column=column, timeout=timeout)
 
+    async def stream_results(
+        self, 
+        query: str, 
+        *args, 
+        batch_size: int = 1000,
+        transform_func = None,
+        timeout: Optional[float] = None
+    ) -> Any:
+        """
+        Streame les résultats d'une requête volumineuse en utilisant un curseur côté serveur.
+        
+        Cette méthode évite de charger tous les résultats en mémoire en utilisant
+        un générateur asynchrone et des curseurs PostgreSQL.
+        
+        Args:
+            query: Requête SQL à exécuter
+            args: Paramètres pour la requête
+            batch_size: Nombre d'enregistrements à récupérer par lot
+            transform_func: Fonction optionnelle pour transformer chaque ligne
+            timeout: Timeout pour l'acquisition d'une connexion
+            
+        Yields:
+            Lignes de résultat, une par une
+        """
+        # Utiliser l'utilitaire de curseur serveur du module asyncpg_cursor
+        params = args if args else None
+        async for row in fetch_large_dataset(
+            query, 
+            params, 
+            transform_func=transform_func,
+            batch_size=batch_size,
+            timeout=timeout
+        ):
+            yield row
+
     async def transaction(self):
         """
         Retourne un gestionnaire de contexte pour exécuter des requêtes dans une transaction.
