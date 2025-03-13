@@ -9,7 +9,7 @@ import Icon from "~/components/CustomIcons/Icon"
 import { useConversationStore } from "~/stores"
 import { type Conversation } from "~/types"
 
-import { APPLICATION_TITLE, getMainLogoSrc, LOGO_SRC } from "~/utils"
+import { CONSTANTS, getMainLogoSrc } from "~/utils"
 
 import { CONVERSATION_SIDEBAR_SELECTORS } from "./ConversationSidebar.selectors"
 import UpdateConversationModal from "./UpdateConversationModal"
@@ -56,7 +56,7 @@ const ConversationSidebar = () => {
             className="my-clg flex h-full w-full grow flex-col items-center justify-between gap-clg"
             data-cy={CONVERSATION_SIDEBAR_SELECTORS.collapsedSidebarWrapper}
           >
-            <Image src={LOGO_SRC} width={40} height={40} alt={APPLICATION_TITLE} />
+            <Image src={CONSTANTS.LOGO_SRC} width={40} height={40} alt={CONSTANTS.APPLICATION_TITLE} />
 
             <div
               className="flex h-full max-h-[calc(96%-60px)] w-full flex-col
@@ -123,7 +123,7 @@ const ConversationSidebar = () => {
         )}
         expandedHeader={
           <div className="m-0 flex w-full justify-center">
-            <Image src={getMainLogoSrc(resolvedTheme)} alt={APPLICATION_TITLE} width={200} height={83} />
+            <Image src={getMainLogoSrc(resolvedTheme)} alt={CONSTANTS.APPLICATION_TITLE} width={200} height={83} />
           </div>
         }
         footer={(toggle) => (
