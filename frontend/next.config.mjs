@@ -1,8 +1,4 @@
-/**
- * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
- * for Docker builds.
- */
-await import('./src/env.mjs');
+import withPWA from 'next-pwa';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
 // Only run bundle analyzer when ANALYZE is set to true
@@ -10,12 +6,10 @@ const bundleAnalyzerConfig = {
   enabled: process.env.ANALYZE === 'true',
 };
 
-
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
   output: 'standalone',
-  // Prevent TypeScript errors.
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -30,12 +24,6 @@ const config = {
       },
     ],
   },
-  /**
-   * If you have `experimental: { appDir: true }` set, then you must comment the below `i18n` config
-   * out.
-   *
-   * @see https://github.com/vercel/next.js/issues/41980
-   */
   i18n: {
     locales: ['en'],
     defaultLocale: 'en',
@@ -46,6 +34,12 @@ const config = {
     { source: '/api/healthz', destination: '/api/health' },
     { source: '/ping', destination: '/api/health' },
   ],
+  pwa: {
+    dest: 'public',
+    register: true,
+    skipWaiting: true,
+    manifest: '/manifest.json',
+  },
 };
-// Run the app through the bundle analyzer wrapper (which is an optional argument)
-export default withBundleAnalyzer(bundleAnalyzerConfig)(config);
+
+export default withBundleAnalyzer(bundleAnalyzerConfig)(withPWA(config));
