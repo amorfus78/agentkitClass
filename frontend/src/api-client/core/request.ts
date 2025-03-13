@@ -253,40 +253,57 @@ export const getResponseBody = (response: AxiosResponse<any>): any => {
 }
 
 export const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): void => {
-  const errors: Record<number, string> = {
-    400: "Bad Request",
-    401: "Unauthorized",
-    403: "Forbidden",
-    404: "Not Found",
-    500: "Internal Server Error",
-    502: "Bad Gateway",
-    503: "Service Unavailable",
-    ...options.errors,
+  let errorMessage = '';
+
+  switch (result.status) {
+    case 400:
+      errorMessage = "Bad Request";
+      break;
+    case 401:
+      errorMessage = "Unauthorized";
+      break;
+    case 403:
+      errorMessage = "Forbidden";
+      break;
+    case 404:
+      errorMessage = "Not Found";
+      break;
+    case 500:
+      errorMessage = "Internal Server Error";
+      break;
+    case 502:
+      errorMessage = "Bad Gateway";
+      break;
+    case 503:
+      errorMessage = "Service Unavailable";
+      break;
+    default:
+      errorMessage = options.errors?.[result.status] ?? '';
+      break;
   }
 
-  const error = errors[result.status]
-  if (error) {
-    throw new ApiError(options, result, error)
+  if (errorMessage) {
+    throw new ApiError(options, result, errorMessage);
   }
 
   if (!result.ok) {
-    const errorStatus = result.status ?? "unknown"
-    const errorStatusText = result.statusText ?? "unknown"
+    const errorStatus = result.status ?? "unknown";
+    const errorStatusText = result.statusText ?? "unknown";
     const errorBody = (() => {
       try {
-        return JSON.stringify(result.body, null, 2)
-      } catch (e) {
-        return undefined
+        return JSON.stringify(result.body, null, 2);
+      } catch {
+        return undefined;
       }
-    })()
+    })();
 
     throw new ApiError(
       options,
       result,
       `Generic Error: status: ${errorStatus}; status text: ${errorStatusText}; body: ${errorBody}`
-    )
+    );
   }
-}
+};
 
 /**
  * Request method
