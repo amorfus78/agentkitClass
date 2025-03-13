@@ -8,7 +8,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { Toaster } from "react-hot-toast"
 
 import { OpenAPI } from "~/api-client"
-import { APPLICATION_TITLE } from "~/utils"
+import { CONSTANTS } from "~/utils";
 
 import { Layout } from "../components/Common"
 
@@ -24,7 +24,7 @@ OpenAPI.WITH_CREDENTIALS = true
 const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) => (
   <SessionProvider session={session}>
     <Head>
-      <title>{APPLICATION_TITLE}</title>
+      <title>{CONSTANTS.APPLICATION_TITLE}</title>
       <meta name="A GenAI POC application @ BCG.X" content="By BCG X" />
       <link rel="icon" href="/favicon.ico" />
     </Head>
