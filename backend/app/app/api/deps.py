@@ -31,6 +31,8 @@ from starlette.requests import Request
 from app.core.config import settings
 from app.db.session import SessionLocal, SessionLocalCelery
 from app.utils.minio_client import MinioClient
+from app.db.asyncpg_pool import get_pool, close_pool
+from app.db.asyncpg_service import PostgresService
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/login/access-token")
 
@@ -106,3 +108,7 @@ def get_jwt(req: Request) -> NextAuthJWT:
         secret=settings.NEXTAUTH_SECRET,
         csrf_prevention_enabled=False,
     )(req)
+
+def get_pg_service() -> PostgresService:
+    """Dependance pour accéder au service PostgreSQL optimisé."""
+    return PostgresService()

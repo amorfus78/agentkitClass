@@ -24,7 +24,7 @@ from app.core.config import settings, yaml_configs
 from app.core.fastapi import FastAPIWithInternalModels
 from app.utils.config_loader import load_agent_config, load_ingestion_configs
 from app.utils.fastapi_globals import GlobalsMiddleware, g
-
+from app.db.asyncpg_pool import get_pool, close_pool
 
 async def user_id_identifier(request: Request) -> str:
     """Identify the user from the request."""
@@ -78,6 +78,14 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 
     redis_client = await get_redis_client()
 
+    # Initialiser le pool de connexions PostgreSQL
+    try:
+        await get_pool()
+        logging.info("PostgreSQL connection pool initialized")
+    except Exception as e:
+        logging.error(f"Failed to initialize PostgreSQL pool: {e}")
+        raise
+
     if settings.ENABLE_LLM_CACHE:
         set_llm_cache(RedisCache(redis_=get_redis_client_sync()))
 
@@ -96,6 +104,8 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # shutdown
     await FastAPICache.clear()
     await FastAPILimiter.close()
+    await close_pool()
+
     g.cleanup()
     gc.collect()
     yaml_configs.clear()
