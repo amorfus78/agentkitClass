@@ -83,6 +83,7 @@ async def agent_chat(
     memory = get_conv_token_buffer_memory(
         chat_messages[:-1],  # type: ignore
         api_key,
+        conversation_id=chat.conversation_id,
     )
     logger.info(f"Initializing stream handler")
     stream_handler = AsyncIteratorCallbackHandler()
