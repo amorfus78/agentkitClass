@@ -1,8 +1,8 @@
 ---
 tools_library: !include tools.yml
 common: # settings shared by agent and all tools (can be overwritten by passing explicitly to constructors)
-  llm: 'gpt-4'
-  fast_llm: 'gpt-3.5-turbo'
+  llm: 'llama3'
+  fast_llm: 'llama3'
   fast_llm_token_limit: 2500
   max_token_length: 4000
 tools: # list of all tools available for the agent
@@ -18,11 +18,9 @@ tools: # list of all tools available for the agent
 action_plans: # list of all action plans available for the meta agent
   '1':
     name: ''
-    description: Gather new information and summarize
+    description: Answer concisely
     actions:
-      - - pdf_tool
-        - entertainer_tool
-      - - expert_tool
+      - - entertainer_tool
   '2':
     name: ''
     description: Sufficient information in chat history, answer question

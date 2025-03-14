@@ -173,6 +173,7 @@ class SimpleRouterAgent(BaseMultiActionAgent):
         Returns:
             BasePromptTemplate: A BasePromptTemplate object.
         """
+        logger.info(f"Creating prompt")
         messages: list[BaseMessagePromptTemplate | BaseMessage | BaseChatPromptTemplate] = [
             SystemMessagePromptTemplate.from_template(
                 system_context.format(

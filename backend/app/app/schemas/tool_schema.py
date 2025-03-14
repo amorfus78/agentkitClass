@@ -6,10 +6,7 @@ from langchain.schema import AIMessage, HumanMessage
 from pydantic.v1 import BaseModel  # TODO: Remove this line when langchain upgrades to pydantic v2
 
 LLMType = Literal[
-    "gpt-4",
-    "gpt-3.5-turbo",
-    "azure-4-32k",
-    "azure-3.5",
+    "llama3",
 ]
 
 

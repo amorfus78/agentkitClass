@@ -12,6 +12,7 @@ services:
       - 9090
     env_file: ".env"
     depends_on:
+      - redis_server
       - database
 
   nextjs_server:
@@ -74,6 +75,16 @@ services:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+
+  ollama_server:
+    image: ollama/ollama:latest
+    container_name: ollama_server
+    restart: always
+    ports:
+      - 11434:11434
+    expose:
+      - 11434
+    env_file: ".env"
 
 
 volumes:

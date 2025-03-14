@@ -337,8 +337,8 @@ library:
         content: |-
           The prompt for generating an image of the item is ...
   clarify_tool:
-    default_llm: "gpt-4"
-    default_fast_llm: "gpt-3.5-turbo"
+    default_llm: "llama3"
+    default_fast_llm: "llama3"
     description: >-
       Tool to request clarification from the user when the input question is ambiguous or it's unclear which action plan to select.
       If the user poses a question where it is unclear which action plan to select, use this tool to ask the user to clarify the question, thus enabling you to select the correct action plan

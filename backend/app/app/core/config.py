@@ -152,6 +152,13 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     BACKEND_CORS_ORIGINS: list[str] | list[AnyHttpUrl]
 
+    ################################
+    # Ollama configuration
+    ################################
+    OLLAMA_URL: str
+    OLLAMA_DEFAULT_MODEL: str
+    OLLAMA_ENABLED: bool
+
     @validator(
         "BACKEND_CORS_ORIGINS",
         pre=True,

@@ -73,61 +73,47 @@ async def agent_chat(
     Returns:
         StreamingResponse: The streaming response of the conversation.
     """
-    
-    log_chat(chat)
-
 
     api_key = chat.api_key
     if api_key is None or api_key == "":
         api_key = settings.OPENAI_API_KEY
+        
 
-    # chat_messages = [m.to_langchain() for m in chat.messages]
-    # memory = get_conv_token_buffer_memory(
-    #     chat_messages[:-1],  # type: ignore
-    #     api_key,
-    # )
-    # stream_handler = AsyncIteratorCallbackHandler()
-    # chat_content = chat_messages[-1].content if chat_messages[-1] is not None else ""
-    # asyncio.create_task(
-    #     handle_exceptions(
-    #         meta_agent.arun(
-    #             input=chat_content,
-    #             chat_history=memory.load_memory_variables({})["chat_history"],
-    #             callbacks=[stream_handler],
-    #             user_settings=chat.settings,
-    #             tags=[
-    #                 "agent_chat",
-    #                 f"user_email={chat.user_email}",
-    #                 f"conversation_id={chat.conversation_id}",
-    #                 f"message_id={chat.new_message_id}",
-    #                 f"timestamp={datetime.now()}",
-    #                 f"version={chat.settings.version if chat.settings is not None else 'N/A'}",
-    #             ],
-    #         ),
-    #         stream_handler,
-    #     )
-    # )
+    chat_messages = [m.to_langchain() for m in chat.messages]
+    memory = get_conv_token_buffer_memory(
+        chat_messages[:-1],  # type: ignore
+        api_key,
+    )
+    logger.info(f"Initializing stream handler")
+    stream_handler = AsyncIteratorCallbackHandler()
+    logger.info(f"Initializing chat content")
+    chat_content = chat_messages[-1].content if chat_messages[-1] is not None else ""
+    logger.info(f"Initializing chat content: {chat_content}")
+    asyncio.create_task(
+        handle_exceptions(
+            meta_agent.arun(
+                input=chat_content,
+                chat_history=memory.load_memory_variables({})["chat_history"],
+                callbacks=[stream_handler],
+                user_settings=chat.settings,
+                tags=[
+                    "agent_chat",
+                    f"user_email={chat.user_email}",
+                    f"conversation_id={chat.conversation_id}",
+                    f"message_id={chat.new_message_id}",
+                    f"timestamp={datetime.now()}",
+                    f"version={chat.settings.version if chat.settings is not None else 'N/A'}",
+                ],
+            ),
+            stream_handler,
+        )
+    )
+    logger.info(f"Streaming response")
 
-    def _encoded_results():
-        return '{"a": 123}'.to_json()
-
-    def generate_results():
-        for i in range(10):
-            yield MyEntity(
-                id=i,
-                name=f"name_{i}",
-                joined=datetime.now(),
-            )
-
-    def response():
-        line1 = '{"metadata": "run_id", "data_type": "signal", "data": "start"}'
-        line2 = '{"metadata": "run_id", "data_type": "action", "data": "clarify_tool"}'
-        line3 = '{"metadata": "run_id", "data_type": "signal", "data": "llm_end"}'
-        line4 = '{"metadata": "run_id", "data_type": "signal", "data": "tool_end"}'
-        line5 = '{"metadata": "run_id", "data_type": "signal", "data": "end"}'
-        return f'[{line1}, {line2}, {line3}, {line4}, {line5}]'
-
-    return response()
+    return StreamingJsonListResponse(
+        event_generator(stream_handler),
+        media_type="text/plain",
+    )
 
 def get_content(message):
     return message.content

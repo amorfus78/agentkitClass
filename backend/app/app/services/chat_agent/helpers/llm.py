@@ -1,31 +1,61 @@
 # -*- coding: utf-8 -*-
 # mypy: disable-error-code="call-arg"
 # TODO: Change langchain param names to match the new langchain version
-
 import logging
 from typing import Optional
-
 import tiktoken
 from langchain.base_language import BaseLanguageModel
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
+from langchain_community.chat_models.ollama import ChatOllama
 
 from app.core.config import settings
 from app.schemas.tool_schema import LLMType
-
 logger = logging.getLogger(__name__)
-
-
 def get_token_length(
     string: str,
-    model: str = "gpt-4",
+    model: str = "llama3",
 ) -> int:
     """Get the token length of a string."""
-    enc = tiktoken.encoding_for_model(model)
+    try:
+        enc = tiktoken.encoding_for_model(model)
+    except KeyError:
+        # Use a default encoding for models not supported by tiktoken
+        logger.warning(f"Model {model} not supported by tiktoken, using cl100k_base encoding instead")
+        enc = tiktoken.get_encoding("cl100k_base")  # This is GPT-4's encoding and works well as a general purpose one
     encoded = enc.encode(string)
     return len(encoded)
 
-
 def get_llm(
+    llm: LLMType,
+    api_key: Optional[str] = settings.OPENAI_API_KEY,
+) -> BaseLanguageModel:
+    """ "
+    Gets the LLM requested by the user.
+    If the LLM is one of the supported hosted LLM types, returns the hosted LLM instance.
+    Otherwise, returns the Ollama LLM instance, defaulting to the defalt Ollama
+    if that LLM doesn't exist on the Ollama server.
+    """
+    if settings.OLLAMA_ENABLED:
+        return get_ollama_llm(llm)
+    else:
+        return get_hosted_llm(llm, api_key)
+
+
+def get_ollama_llm(llm: LLMType) -> BaseLanguageModel:
+    """
+    Get the Ollama LLM instance for the given LLM type.
+    If that LLM doesn't exist on the Ollama server, return the default Ollama LLM.
+    """
+    try:
+        logger.info(f"Using Ollama LLM {llm} with base URL {settings.OLLAMA_URL}")
+        return ChatOllama(model=llm, verbose=True, base_url=settings.OLLAMA_URL)
+    except Exception as e:
+        logger.exception(e)
+        logger.warning(f"Ollama LLM {llm} not found, using default Ollama LLM")
+        return ChatOllama(model=settings.OLLAMA_DEFAULT_MODEL, verbose=True)
+
+
+def get_hosted_llm(
     llm: LLMType,
     api_key: Optional[str] = settings.OPENAI_API_KEY,
 ) -> BaseLanguageModel:
