@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentkit-fastapi-server-deployment
+  labels:
+    app: agentkit-fastapi-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agentkit-fastapi-server
+  template:
+    metadata:
+      labels:
+        app: agentkit-fastapi-server
+    spec:
+      containers:
+        - name: agentkit-fastapi-server
+          image: agentkit-fastapi-server:latest
+          command:
+            [
+              "sh",
+              "-c",
+              "alembic -c /code/app/alembic.ini upgrade head && python /code/app/app/document_ingestion.py && uvicorn app.main:app --host 0.0.0.0 --port 9090",
+            ]
+          ports:
+            - containerPort: 9090
+          env:
+            - name: PYTHONPATH
+              value: "/code/app"
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: your-secret
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: your-secret
+                  key: DATABASE_PASSWORD
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: your-secret
+                  key: DATABASE_NAME
+            - name: REDIS_HOST
+              value: "redis_server"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: MINIO_URL
+              value: "storage.localhost"
+            - name: MINIO_BUCKET
+              value: "fastapi-minio"
+            - name: MINIO_ROOT_USER
+              value: "minioadmin"
+            - name: MINIO_ROOT_PASSWORD
+              value: "minioadmin"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"

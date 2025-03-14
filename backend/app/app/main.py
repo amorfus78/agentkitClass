@@ -17,6 +17,7 @@ from langchain.cache import RedisCache
 from langchain.globals import set_llm_cache
 from pydantic import ValidationError
 from starlette.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.api.deps import get_redis_client, get_redis_client_sync
 from app.api.v1.api import api_router as api_router_v1
@@ -112,6 +113,7 @@ app = FastAPIWithInternalModels(
     lifespan=lifespan,
 )
 
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 app.add_middleware(
     SQLAlchemyMiddleware,
@@ -147,6 +149,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def root() -> Dict[str, str]:
     """An example "Hello world" FastAPI route."""
     return {"message": "FastAPI backend"}
+
 
 
 # Add Routers

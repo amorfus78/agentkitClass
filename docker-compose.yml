@@ -14,6 +14,8 @@ services:
     depends_on:
       - redis_server
       - database
+    labels:
+      - "prometheus.scrape=true"
 
   nextjs_server:
     container_name: nextjs_server
@@ -76,15 +78,17 @@ services:
       - caddy_data:/data
       - caddy_config:/config
 
-  ollama_server:
-    image: ollama/ollama:latest
-    container_name: ollama_server
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.33.0
     restart: always
     ports:
-      - 11434:11434
-    expose:
-      - 11434
-    env_file: ".env"
+      - 9091:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - fastapi_server
+
 
 
 volumes:
